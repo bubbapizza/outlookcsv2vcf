@@ -1,7 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # This program converts outlook contacts exported in CSV format to a giant 
-# vcard file that can be imported into wherever.
+# vcard 3.0 file that can be imported into wherever.
+
+
+#### LIBRARIES ####
+import sys
+import argparse
+import vobject
 
 #### CONSTANTS ####
 
@@ -102,52 +109,99 @@ USER4                       = 90
 WEB_PAGE                    = 100
 
 
-function CSVrow2vobject():
+def CSVrow2vobject(row):
+    '''This function converts a single CSV row to a vcard v3.0 object.'''
 
-   # Here's the columns I need to convert:
-   TITLE                       = 0
-   FIRST_NAME                  = 1
-   MIDDLE_NAME                 = 2
-   LAST_NAME                   = 3
-   SUFFIX                      = 4
-   COMPANY                     = 5
-   DEPARTMENT                  = 6
-   JOB_TITLE                   = 7
-   BUSINESS_STREET             = 8
-   BUSINESS_STREET2            = 9
-   BUSINESS_STREET3            = 10
-   BUSINESS_CITY               = 11
-   BUSINESS_STATE              = 12
-   BUSINESS_POSTAL_CODE        = 13
-   BUSINESS_COUNTRY            = 14
-   HOME_STREET                 = 15
-   HOME_STREET2                = 16
-   HOME_STREET3                = 17
-   HOME_CITY                   = 18
-   HOME_STATE                  = 19
-   HOME_POSTAL_CODE            = 20
-   HOME_COUNTRY                = 21
-   BUSINESS_FAX                = 30
-   BUSINESS_PHONE              = 31
-   BUSINESS_PHONE2             = 32
-   COMPANY_MAIN_PHONE          = 35
-   HOME_FAX                    = 36
-   HOME_PHONE                  = 37
-   HOME_PHONE2                 = 38
-   MOBILE_PHONE                = 40
-   OTHER_FAX                   = 41
-   OTHER_PHONE                 = 42
-   PAGER                       = 43
-   ASSISTANT_NAME              = 50
-   CATEGORIES                  = 54
-   EMAIL_ADDRESS               = 57
-   EMAIL_TYPE                  = 58
-   EMAIL_DISPLAY_NAME          = 59
-   EMAIL2_ADDRESS              = 60
-   EMAIL2_TYPE                 = 61
-   EMAIL2_DISPLAY_NAME         = 62
-   INITIALS                    = 70
-   NOTES                       = 77
-   OFFICE_LOCATION             = 78
-   WEB_PAGE                    = 100
+    # Create a vobject to return.
+    vcard = vobject.vCard()
 
+    # Contact name
+    vcard.add('fn')
+    vcard.fn.value = row[FIRST_NAME] + ' ' + row[MIDDLE_NAME] + ' ' + \
+        row[LAST_NAME]
+
+    vcard.add('n')
+    vcard.n.value = vobject.vcard.Name(
+        family = row[LAST_NAME],
+        given = row[FIRST_NAME],
+        additional = row[MIDDLE_NAME],
+        prefix = row[TITLE],
+        suffix = row[SUFFIX])
+
+    # Company
+    vcard.add('o')
+    vcard.o.value = row[COMPANY]
+
+
+#    # Here's the columns I need to convert:
+#    COMPANY                     = 5
+#    DEPARTMENT                  = 6
+#    JOB_TITLE                   = 7
+#    BUSINESS_STREET             = 8
+#    BUSINESS_STREET2            = 9
+#    BUSINESS_STREET3            = 10
+#    BUSINESS_CITY               = 11
+#    BUSINESS_STATE              = 12
+#    BUSINESS_POSTAL_CODE        = 13
+#    BUSINESS_COUNTRY            = 14
+#    HOME_STREET                 = 15
+#    HOME_STREET2                = 16
+#    HOME_STREET3                = 17
+#    HOME_CITY                   = 18
+#    HOME_STATE                  = 19
+#    HOME_POSTAL_CODE            = 20
+#    HOME_COUNTRY                = 21
+#    BUSINESS_FAX                = 30
+#    BUSINESS_PHONE              = 31
+#    BUSINESS_PHONE2             = 32
+#    COMPANY_MAIN_PHONE          = 35
+#    HOME_FAX                    = 36
+#    HOME_PHONE                  = 37
+#    HOME_PHONE2                 = 38
+#    MOBILE_PHONE                = 40
+#    OTHER_FAX                   = 41
+#    OTHER_PHONE                 = 42
+#    PAGER                       = 43
+#    ASSISTANT_NAME              = 50
+#    CATEGORIES                  = 54
+#    EMAIL_ADDRESS               = 57
+#    EMAIL_TYPE                  = 58
+#    EMAIL_DISPLAY_NAME          = 59
+#    EMAIL2_ADDRESS              = 60
+#    EMAIL2_TYPE                 = 61
+#    EMAIL2_DISPLAY_NAME         = 62
+#    INITIALS                    = 70
+#    NOTES                       = 77
+#    OFFICE_LOCATION             = 78
+#    WEB_PAGE                    = 100
+# 
+
+
+#### MAIN ####
+
+def main(argv=sys.argv[1:]):
+    '''Import a csv file and dump out the corresponding VCARD to stdout.'''
+
+    parser = argparse.ArgumentParser(description = '''
+This program imports a CSV file of contacts from Outlook v16 (Office365
+or office 2019) and converts it to a single iCal file which can be 
+imported.''')
+
+    # Parse arguments.
+    parser.add_argument("infile", nargs='?', 
+                        help="Specify the outlook CSV filename.",
+                        type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument("outfile", nargs='?', 
+                        help="Specify the iCAL filename.",
+                        type=argparse.FileType('w'), default=sys.stdout)
+    args = parser.parse_args(args=argv)
+
+    # Use the args here
+    print( args.infile )
+
+
+    return 0 # ok status
+
+
+if __name__=='__main__':
+    sys.exit(main())
