@@ -107,7 +107,7 @@ USER1                       = 87
 USER2                       = 88
 USER3                       = 89
 USER4                       = 90
-WEB_PAGE                    = 100
+WEB_PAGE                    = 91
 
 
 def CSVrow2vobject(row):
@@ -119,82 +119,153 @@ def CSVrow2vobject(row):
     # Contact name
     vcard.add('fn')
     if row[MIDDLE_NAME]:
-        vcard.fn.value = ' '.join((row[FIRST_NAME], row[LAST_NAME]))
-    else:
         vcard.fn.value = ' '.join(
             (row[FIRST_NAME], row[MIDDLE_NAME], row[LAST_NAME]))
-
+    else:
+        vcard.fn.value = ' '.join((row[FIRST_NAME], row[LAST_NAME]))
+    
     vcard.add('n')
-    vcard.n.value = vobject.vcard.Name(
-        family = row[LAST_NAME],
-        given = row[FIRST_NAME],
-        additional = row[MIDDLE_NAME],
-        prefix = row[TITLE],
-        suffix = row[SUFFIX])
+    vcard.n.value = vobject.vcard.Name()
+    vcard.n.value.family = row[LAST_NAME]
+    vcard.n.value.given = row[FIRST_NAME]
+    vcard.n.value.additional = row[MIDDLE_NAME]
+    vcard.n.value.prefix = row[TITLE]
+    vcard.n.value.suffix = row[SUFFIX]
 
-    # Company info
-    vcard.add('org')
-    vcard.org.value = [row[COMPANY], row[DEPARTMENT]]
-    vcard.add('title')
-    vcard.title.value = row[JOB_TITLE]
 
-    workAddr = vcard.add('adr')
-    workAddr.type_param = ["WORK", "POSTAL"]
-    workAddr.value = vobject.vcard.Address()
-    workAddr.street = row[BUSINESS_STREET]
-    if row[BUSINESS_STREET2]:
-        workAddr.street += '\n' + row[BUSINESS_STREET2]
-    if row[BUSINESS_STREET3]:
-        workAddr.street += '\n' + row[BUSINESS_STREET3]
-    workAddr.city = row[BUSINESS_CITY]    
-    workAddr.region = row[BUSINESS_STATE]
-    workAddr.code = row[BUSINESS_POSTAL_CODE]
-    workAddr.country = row[BUSINESS_COUNTRY]
+    # Company name/job
+    if row[COMPANY]:
+        vcard.add('org')
+        if row[DEPARTMENT]:
+            vcard.org.value = [row[COMPANY], row[DEPARTMENT]]
+        else:
+            vcard.org.value = [row[COMPANY]]
+    if row[JOB_TITLE]:
+        vcard.add('title')
+        vcard.title.value = row[JOB_TITLE]
+
+
+    # Company address
+    if row[BUSINESS_STREET]:
+        workAddr = vcard.add('adr')
+        workAddr.type_param = ["WORK", "POSTAL"]
+        workAddr.value = vobject.vcard.Address()
+        workAddr.street = row[BUSINESS_STREET]
+        if row[BUSINESS_STREET2]:
+            workAddr.street += '\n' + row[BUSINESS_STREET2]
+        if row[BUSINESS_STREET3]:
+            workAddr.street += '\n' + row[BUSINESS_STREET3]
+        workAddr.city = row[BUSINESS_CITY]    
+        workAddr.region = row[BUSINESS_STATE]
+        workAddr.code = row[BUSINESS_POSTAL_CODE]
+        workAddr.country = row[BUSINESS_COUNTRY]
+
     
     # Home address
-    homeAddr = vcard.add('adr')
-    homeAddr.type_param = ["HOME", "POSTAL"]
-    homeAddr.value = vobject.vcard.Address()
-    homeAddr.street = row[HOME_STREET]
-    if row[HOME_STREET2]:
-        homeAddr.street += '\n' + row[HOME_STREET2]
-    if row[HOME_STREET3]:
-        homeAddr.street += '\n' + row[HOME_STREET3]
-    homeAddr.city = row[HOME_CITY]    
-    homeAddr.region = row[HOME_STATE]
-    homeAddr.code = row[HOME_POSTAL_CODE]
-    homeAddr.country = row[HOME_COUNTRY]
+    if row[HOME_STREET]:
+        homeAddr = vcard.add('adr')
+        homeAddr.type_param = ["HOME", "POSTAL"]
+        homeAddr.value = vobject.vcard.Address()
+        homeAddr.street = row[HOME_STREET]
+        if row[HOME_STREET2]:
+            homeAddr.street += '\n' + row[HOME_STREET2]
+        if row[HOME_STREET3]:
+            homeAddr.street += '\n' + row[HOME_STREET3]
+        homeAddr.city = row[HOME_CITY]    
+        homeAddr.region = row[HOME_STATE]
+        homeAddr.code = row[HOME_POSTAL_CODE]
+        homeAddr.country = row[HOME_COUNTRY]
 
+
+    # Company phone
+    if row[COMPANY_MAIN_PHONE]:
+        workPhone = vcard.add('tel')
+        workPhone.type_param = ["WORK", "VOICE", "PREF"]
+        workPhone.value = row[COMPANY_MAIN_PHONE]
+    if row[BUSINESS_PHONE]:
+        workPhone = vcard.add('tel')
+        if row[COMPANY_MAIN_PHONE]:
+            workPhone.type_param = ["WORK", "VOICE"]
+        else:
+            workPhone.type_param = ["WORK", "VOICE", "PREF"]
+        workPhone.value = row[BUSINESS_PHONE]
+    if row[BUSINESS_PHONE2]:
+        workPhone = vcard.add('tel')
+        workPhone.type_param = ["WORK", "VOICE"]
+        workPhone.value = row[BUSINESS_PHONE2]
+    if row[BUSINESS_FAX]:
+        workPhone = vcard.add('tel')
+        workPhone.type_param = ["WORK", "FAX"]
+        workPhone.value = row[BUSINESS_FAX]
+
+
+    # Home phone
+    if row[HOME_PHONE]:
+        homePhone = vcard.add('tel')
+        homePhone.type_param = ["HOME", "VOICE", "PREF"]
+        homePhone.value = row[HOME_PHONE]
+    if row[HOME_PHONE2]:
+        homePhone = vcard.add('tel')
+        homePhone.type_param = ["HOME", "VOICE"]
+        homePhone.value = row[HOME_PHONE2]
+    if row[HOME_FAX]:
+        homePhone = vcard.add('tel')
+        homePhone.type_param = ["HOME", "FAX"]
+        homePhone.value = row[HOME_FAX]
+
+
+    # Other phones
+    if row[MOBILE_PHONE]:
+        otherPhone = vcard.add('tel')
+        otherPhone.type_param = ["CELL"]
+        otherPhone.value = row[MOBILE_PHONE]
+    if row[OTHER_PHONE]:
+        otherPhone = vcard.add('tel')
+        otherPhone.type_param = ["VOICE"]
+        otherPhone.value = row[OTHER_PHONE]
+    if row[OTHER_FAX]:
+        otherPhone = vcard.add('tel')
+        otherPhone.type_param = ["FAX"]
+        otherPhone.value = row[OTHER_FAX]
+    if row[PAGER]:
+        otherPhone = vcard.add('tel')
+        otherPhone.type_param = ["PAGER"]
+        otherPhone.value = row[PAGER]
+    
+
+    # Email addresses
+    if row[EMAIL_ADDRESS]:
+        email = vcard.add('email')
+        if row[EMAIL_TYPE] == "SMTP":
+            email.type_param = ["internet", "PREF"]
+        else:
+            email.type_param = ["PREF"]
+        email.value = row[EMAIL_ADDRESS]
+    if row[EMAIL2_ADDRESS]:
+        email2 = vcard.add('email')
+        if row[EMAIL2_TYPE] == "SMTP":
+            email2.type_param = ["internet"]
+        email2.value = row[EMAIL2_ADDRESS]
+
+
+    # Miscellaneous info
+    if row[ASSISTANT_NAME]:
+        assistant = vcard.add('x-assistant')
+        assistant.value = row[ASSISTANT_NAME]
+    if row[CATEGORIES]:
+        cat = vcard.add('categories')
+        cat.value = row[CATEGORIES].split(',')
+    if row[NOTES]:
+        notes = vcard.add('note')
+        notes.value = row[NOTES]
+    if row[WEB_PAGE]:
+        url = vcard.add('url')
+        url.value = row[WEB_PAGE]
 
 
     return vcard
 
 
-#    # Here's the columns I need to convert:
-#    BUSINESS_FAX                = 30
-#    BUSINESS_PHONE              = 31
-#    BUSINESS_PHONE2             = 32
-#    COMPANY_MAIN_PHONE          = 35
-#    HOME_FAX                    = 36
-#    HOME_PHONE                  = 37
-#    HOME_PHONE2                 = 38
-#    MOBILE_PHONE                = 40
-#    OTHER_FAX                   = 41
-#    OTHER_PHONE                 = 42
-#    PAGER                       = 43
-#    ASSISTANT_NAME              = 50
-#    CATEGORIES                  = 54
-#    EMAIL_ADDRESS               = 57
-#    EMAIL_TYPE                  = 58
-#    EMAIL_DISPLAY_NAME          = 59
-#    EMAIL2_ADDRESS              = 60
-#    EMAIL2_TYPE                 = 61
-#    EMAIL2_DISPLAY_NAME         = 62
-#    INITIALS                    = 70
-#    NOTES                       = 77
-#    OFFICE_LOCATION             = 78
-#    WEB_PAGE                    = 100
-# 
 
 
 #### MAIN ####
@@ -220,14 +291,16 @@ imported.''')
 
 
     # Get the CSV headers.
-    csvfile = csv.reader(args.infile)
-    headers = next(csvfile)
+    CSVreader = csv.reader(args.infile)
+    headers = next(CSVreader)
 
-    line1 = next(csvfile)
-    vc3 = CSVrow2vobject(line1)
+    linecount = 0
+    vcards = []
+    for line in CSVreader:
+        vcard = CSVrow2vobject(line)
+        vcards.append(vcard)
+        print(vcard.serialize())
 
-    print(vc3.serialize())
-    
 
     return 0 # ok status
 
