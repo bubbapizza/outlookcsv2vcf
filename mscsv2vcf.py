@@ -9,6 +9,7 @@
 import sys
 import argparse
 import vobject
+import csv
 
 #### CONSTANTS ####
 
@@ -117,8 +118,11 @@ def CSVrow2vobject(row):
 
     # Contact name
     vcard.add('fn')
-    vcard.fn.value = row[FIRST_NAME] + ' ' + row[MIDDLE_NAME] + ' ' + \
-        row[LAST_NAME]
+    if row[MIDDLE_NAME]:
+        vcard.fn.value = ' '.join((row[FIRST_NAME], row[LAST_NAME]))
+    else:
+        vcard.fn.value = ' '.join(
+            (row[FIRST_NAME], row[MIDDLE_NAME], row[LAST_NAME]))
 
     vcard.add('n')
     vcard.n.value = vobject.vcard.Name(
@@ -128,22 +132,33 @@ def CSVrow2vobject(row):
         prefix = row[TITLE],
         suffix = row[SUFFIX])
 
-    # Company
-    vcard.add('o')
-    vcard.o.value = row[COMPANY]
+    # Company info
+    vcard.add('org')
+    vcard.org.value = [row[COMPANY], row[DEPARTMENT]]
+    vcard.add('title')
+    vcard.title.value = row[JOB_TITLE]
+
+    workAddr = vcard.add('adr')
+    workAddr.type_param = ["WORK", "POSTAL"]
+    workAddr.adr.value = vobject.vcard.Address()
+    adr = workAddr.adr.value
+    addr.street = row[BUSINESS_STREET]
+    if row[BUSINESS_STREET2]
+        addr.street += '\n' + .join(row[BUSINESS_STREET2])
+    if row[BUSINESS_STREET3]
+        addr.street += '\n' + .join(row[BUSINESS_STREET3])
+    addr.city = row[BUSINESS_CITY]    
+    addr.region = row[BUSINESS_STATE]
+    addr.code = row[BUSINESS_POSTAL_CODE]
+    addr.country = row[BUSINESS_COUNTRY]
+    
+
+
+
+    return vcard
 
 
 #    # Here's the columns I need to convert:
-#    COMPANY                     = 5
-#    DEPARTMENT                  = 6
-#    JOB_TITLE                   = 7
-#    BUSINESS_STREET             = 8
-#    BUSINESS_STREET2            = 9
-#    BUSINESS_STREET3            = 10
-#    BUSINESS_CITY               = 11
-#    BUSINESS_STATE              = 12
-#    BUSINESS_POSTAL_CODE        = 13
-#    BUSINESS_COUNTRY            = 14
 #    HOME_STREET                 = 15
 #    HOME_STREET2                = 16
 #    HOME_STREET3                = 17
@@ -182,12 +197,14 @@ def CSVrow2vobject(row):
 def main(argv=sys.argv[1:]):
     '''Import a csv file and dump out the corresponding VCARD to stdout.'''
 
+    #
+    # Set up command line arguments.
+    #
     parser = argparse.ArgumentParser(description = '''
 This program imports a CSV file of contacts from Outlook v16 (Office365
 or office 2019) and converts it to a single iCal file which can be 
 imported.''')
 
-    # Parse arguments.
     parser.add_argument("infile", nargs='?', 
                         help="Specify the outlook CSV filename.",
                         type=argparse.FileType('r'), default=sys.stdin)
@@ -196,9 +213,16 @@ imported.''')
                         type=argparse.FileType('w'), default=sys.stdout)
     args = parser.parse_args(args=argv)
 
-    # Use the args here
-    print( args.infile )
 
+    # Get the CSV headers.
+    csvfile = csv.reader(args.infile)
+    headers = next(csvfile)
+
+    line1 = next(csvfile)
+    vc3 = CSVrow2vobject(line1)
+
+    print(vc3.serialize())
+    
 
     return 0 # ok status
 
