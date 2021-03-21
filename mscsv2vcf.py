@@ -140,18 +140,30 @@ def CSVrow2vobject(row):
 
     workAddr = vcard.add('adr')
     workAddr.type_param = ["WORK", "POSTAL"]
-    workAddr.adr.value = vobject.vcard.Address()
-    adr = workAddr.adr.value
-    addr.street = row[BUSINESS_STREET]
-    if row[BUSINESS_STREET2]
-        addr.street += '\n' + .join(row[BUSINESS_STREET2])
-    if row[BUSINESS_STREET3]
-        addr.street += '\n' + .join(row[BUSINESS_STREET3])
-    addr.city = row[BUSINESS_CITY]    
-    addr.region = row[BUSINESS_STATE]
-    addr.code = row[BUSINESS_POSTAL_CODE]
-    addr.country = row[BUSINESS_COUNTRY]
+    workAddr.value = vobject.vcard.Address()
+    workAddr.street = row[BUSINESS_STREET]
+    if row[BUSINESS_STREET2]:
+        workAddr.street += '\n' + row[BUSINESS_STREET2]
+    if row[BUSINESS_STREET3]:
+        workAddr.street += '\n' + row[BUSINESS_STREET3]
+    workAddr.city = row[BUSINESS_CITY]    
+    workAddr.region = row[BUSINESS_STATE]
+    workAddr.code = row[BUSINESS_POSTAL_CODE]
+    workAddr.country = row[BUSINESS_COUNTRY]
     
+    # Home address
+    homeAddr = vcard.add('adr')
+    homeAddr.type_param = ["HOME", "POSTAL"]
+    homeAddr.value = vobject.vcard.Address()
+    homeAddr.street = row[HOME_STREET]
+    if row[HOME_STREET2]:
+        homeAddr.street += '\n' + row[HOME_STREET2]
+    if row[HOME_STREET3]:
+        homeAddr.street += '\n' + row[HOME_STREET3]
+    homeAddr.city = row[HOME_CITY]    
+    homeAddr.region = row[HOME_STATE]
+    homeAddr.code = row[HOME_POSTAL_CODE]
+    homeAddr.country = row[HOME_COUNTRY]
 
 
 
@@ -159,13 +171,6 @@ def CSVrow2vobject(row):
 
 
 #    # Here's the columns I need to convert:
-#    HOME_STREET                 = 15
-#    HOME_STREET2                = 16
-#    HOME_STREET3                = 17
-#    HOME_CITY                   = 18
-#    HOME_STATE                  = 19
-#    HOME_POSTAL_CODE            = 20
-#    HOME_COUNTRY                = 21
 #    BUSINESS_FAX                = 30
 #    BUSINESS_PHONE              = 31
 #    BUSINESS_PHONE2             = 32
