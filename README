@@ -1,6 +1,23 @@
-I can't believe nobody's made a decent open source converter for 
-outlook CSV files to vcf files.  For such a simple program, I have
-no idea why there's just a bunch of garbage websites that will charge
-you to convert the damn thing.  
+This program was specifically written to convert a CSV file exported
+from Outlook 365 (or Outlook 2019 I guess) to a bit vcard 3.0 file
+that could be imported into iCloud.
 
-Here's one that will solve this damn problem once and for all.
+I found out that iCloud doesn't properly handle the lines that look
+like
+
+  TEL:TYPE=XXX,YYY,ZZZ:blah
+
+They have to be reformatted as 
+
+  TEL:TYPE=XXX;TYPE=YYY;TYPE=ZZZ:blah
+
+The python vobject cannot export phone numbers in the latter format.
+A super hacky workaround is to just open vim and run the following search
+and replaces:
+
+%s/,VOICE,PREF/;TYPE=VOICE;TYPE=PREF/
+%s/,VOICE/;TYPE=VOICE/
+%s/,FAX/;TYPE=FAX/
+
+Shawn Wilson
+Mar 21, 2021

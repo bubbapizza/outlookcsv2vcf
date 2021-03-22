@@ -150,15 +150,15 @@ def CSVrow2vobject(row):
         workAddr = vcard.add('adr')
         workAddr.type_param = ["WORK", "POSTAL"]
         workAddr.value = vobject.vcard.Address()
-        workAddr.street = row[BUSINESS_STREET]
+        workAddr.value.street = row[BUSINESS_STREET]
         if row[BUSINESS_STREET2]:
-            workAddr.street += '\n' + row[BUSINESS_STREET2]
+            workAddr.value.street += '\n' + row[BUSINESS_STREET2]
         if row[BUSINESS_STREET3]:
-            workAddr.street += '\n' + row[BUSINESS_STREET3]
-        workAddr.city = row[BUSINESS_CITY]    
-        workAddr.region = row[BUSINESS_STATE]
-        workAddr.code = row[BUSINESS_POSTAL_CODE]
-        workAddr.country = row[BUSINESS_COUNTRY]
+            workAddr.value.street += '\n' + row[BUSINESS_STREET3]
+        workAddr.value.city = row[BUSINESS_CITY]    
+        workAddr.value.region = row[BUSINESS_STATE]
+        workAddr.value.code = row[BUSINESS_POSTAL_CODE]
+        workAddr.value.country = row[BUSINESS_COUNTRY]
 
     
     # Home address
@@ -166,15 +166,15 @@ def CSVrow2vobject(row):
         homeAddr = vcard.add('adr')
         homeAddr.type_param = ["HOME", "POSTAL"]
         homeAddr.value = vobject.vcard.Address()
-        homeAddr.street = row[HOME_STREET]
+        homeAddr.value.street = row[HOME_STREET]
         if row[HOME_STREET2]:
-            homeAddr.street += '\n' + row[HOME_STREET2]
+            homeAddr.value.street += '\n' + row[HOME_STREET2]
         if row[HOME_STREET3]:
-            homeAddr.street += '\n' + row[HOME_STREET3]
-        homeAddr.city = row[HOME_CITY]    
-        homeAddr.region = row[HOME_STATE]
-        homeAddr.code = row[HOME_POSTAL_CODE]
-        homeAddr.country = row[HOME_COUNTRY]
+            homeAddr.value.street += '\n' + row[HOME_STREET3]
+        homeAddr.value.city = row[HOME_CITY]    
+        homeAddr.value.region = row[HOME_STATE]
+        homeAddr.value.code = row[HOME_POSTAL_CODE]
+        homeAddr.value.country = row[HOME_COUNTRY]
 
 
     # Company phone
@@ -294,13 +294,21 @@ imported.''')
     CSVreader = csv.reader(args.infile)
     headers = next(CSVreader)
 
+    # Run through each CSV line to create a list of vcard objects.
     linecount = 0
     vcards = []
     for line in CSVreader:
         vcard = CSVrow2vobject(line)
         vcards.append(vcard)
-        print(vcard.serialize())
 
+    # Dump the vcards to a file.
+    for vcard in vcards:
+        args.outfile.write(vcard.serialize())
+    args.outfile.close()
+
+        
+
+    
 
     return 0 # ok status
 
