@@ -1,5 +1,5 @@
 This program was specifically written to convert a CSV file exported
-from Outlook 365 (or Outlook 2019 I guess) to a bit vcard 3.0 file
+from Outlook 365 (or Outlook 2019 I guess) to a vcard 3.0 file
 that could be imported into iCloud.
 
 I found out that iCloud doesn't properly handle the lines that look
